@@ -1,0 +1,31 @@
+--SQL
+
+CREATE DATABASE VGsales
+
+--Imported csv as vgsales
+
+USE vgsales
+
+GO
+
+/*Exploratory Analysis
+What was the best-selling game in each genre?*/
+
+SELECT Name as best_seller_in_genre, Genre, Global_Sales
+FROM (SELECT
+		Name, 
+		Genre, 
+		Global_Sales, 
+		ROW_NUMBER() OVER (PARTITION BY Genre ORDER BY Global_Sales DESC) as row_num
+		FROM vgsales) as ranked WHERE row_num = 1;
+
+--Which games sold a disproportionately high number of copies in NA compared to other regions (say, 90% or more)?
+
+SELECT Name, NA_Sales, Global_Sales, (NA_Sales/Global_Sales) as prop_NA
+FROM vgsales
+WHERE (NA_Sales/Global_Sales) > 0.9 AND Global_Sales > 1
+ORDER BY (NA_Sales/Global_Sales) DESC
+
+--Certain renowned franchises consistently received a higher proportion of sales in NA than one may expect, including the Sims, Half-Life, and MADDEN.
+
+--Which sequels, if any, experienced a multiplier in sales (say, 3x), compared to the first entry in a franchise?
